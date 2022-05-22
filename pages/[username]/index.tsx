@@ -8,38 +8,60 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
-import PostCreateModal from '../../components/postCreateModal'
+import PostCreateModal from '../../components/postModal/postCreateModal'
+import { useSession } from 'next-auth/react'
+import { PrismaClient } from '@prisma/client'
+import { useRouter } from 'next/router'
+
+const prisma = new PrismaClient();
 
 interface Props {
     data: UserData;
-    status: number;
-    statusText: string;
-    headers: {};
-    config: {};
-    request: {};
 }
 
 const Index: NextPage<Props> = (props) => {
-    const [ modalShow, setModalShow ] = React.useState(false);
+    const { data: session } = useSession();
+    const [modalShow, setModalShow] = React.useState(false);
     const handleModalShow = () => setModalShow(!modalShow);
-
+    const router = useRouter();
+    if (props.data.username === null) {
+        router.push('/');
+    }
     return (
-        <>  
-            {modalShow && <PostCreateModal toggleModal={handleModalShow}/>}
-            <Fab 
-                color="primary" 
-                className="fixed bottom-5 right-5 bg-blue-300 hover:bg-blue-400"
-                onClick={handleModalShow}
-            >
-                <AddIcon />
-            </Fab>
+        <>
+            {modalShow && <PostCreateModal toggleModal={handleModalShow} />}
+            {
+                session &&
+                <Fab
+                    color="primary"
+                    className="fixed bottom-10 right-5 bg-blue-300 hover:bg-blue-400 z-40"
+                    onClick={handleModalShow}
+                >
+                    <AddIcon />
+                </Fab>
+            }
             <Navbar />
             <div className='min-h-screen bg-blue-100'>
                 <div className='px-9 bg-white'>
                     <ProfileHeader userData={props.data} />
                 </div>
                 <div className='px-9 bg-blue-100 flex justify-center'>
-                    <PostList listTitle='Posts' posts={props.data.posts} />
+                    {
+                        props.data.postOverviews.length > 0
+                        ?
+                        <PostList listTitle='Posts' posts={props.data.postOverviews} />
+                        :
+                        (
+                            <div className='flex flex-col justify-center items-center p-10 gap-3'>
+                                <div className='text-7xl'>
+                                    😭
+                                </div>
+                                <div className='text-xl font-semibold'>
+                                    No post found...
+                                </div>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
             <Footer />
@@ -48,32 +70,27 @@ const Index: NextPage<Props> = (props) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    // fetch user data here
-    // using dummy data for now
     const { username } = context.query
+
+    const user: UserData = JSON.parse(JSON.stringify(
+        await prisma.user.findUnique({
+            where: {
+                username: username
+            },
+            include: {
+                postOverviews: {
+                    include: {
+                        createdBy: true,
+                    }
+                },
+            }
+        })
+    ));
     const response: Props = {
         data: {
-            profile_emoji: '🤣',
-            username: username!,
-            bio: "フロントエンドエンジニア。",
-            followers: 100,
-            likes: 200,
-            github: "https://github.com/reotam5",
-            posts: [
-                { id: "1", title: 'test post 1', emoji: "😀", likes: 10, comments: 10, views: 10, edited: "2 month ago", createdby: { username: "reotam27", profile_emoji: "🤣" }, created: "4 month ago" },
-                { id: "2", title: 'test post 2', emoji: "😀", likes: 10, comments: 10, views: 10, edited: "2 month ago", createdby: { username: "reotam27", profile_emoji: "🤣" }, created: "4 month ago" },
-                { id: "3", title: 'test post 3', emoji: "😀", likes: 10, comments: 10, views: 10, edited: "2 month ago", createdby: { username: "reotam27", profile_emoji: "🤣" }, created: "4 month ago" },
-                { id: "4", title: 'test post 4', emoji: "😀", likes: 10, comments: 10, views: 10, edited: "2 month ago", createdby: { username: "reotam27", profile_emoji: "🤣" }, created: "4 month ago" },
-                { id: "5", title: 'test post 5', emoji: "😀", likes: 10, comments: 10, views: 10, edited: "2 month ago", createdby: { username: "reotam27", profile_emoji: "🤣" }, created: "4 month ago" },
-            ]
-        },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {},
-        request: {},
+            ...user,
+        }
     }
-
     return {
         props: { ...response }
     }

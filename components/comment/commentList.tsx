@@ -1,3 +1,4 @@
+import { Divider } from '@mui/material';
 import { CommentData } from '../../constants/types';
 import CommentItem from './commentItem';
 
@@ -8,9 +9,9 @@ interface Props {
 
 const CommentList: React.FC<Props> = (props) => {
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
             {
-                props.comments.map(post => <CommentItem comment={post}/>)
+                props.comments.map(post => <CommentItem comment={post} />)
             }
         </div>
     )

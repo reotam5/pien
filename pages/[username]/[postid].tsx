@@ -1,49 +1,139 @@
+import { Divider } from '@mui/material';
+import { PrismaClient } from '@prisma/client';
 import type { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
+import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
 import CommentList from '../../components/comment/commentList';
 import Footer from '../../components/footer'
 import Navbar from '../../components/navbar'
-import { PostData } from '../../constants/types';
+import { CommentData, PostData } from '../../constants/types';
+import { getResponse } from '../../utils/responseUtil';
+import moment from 'moment';
+
+const prisma = new PrismaClient();
 
 interface Props {
     data: PostData;
-    status: number;
-    statusText: string;
-    headers: {};
-    config: {};
-    request: {};
 }
 
 const Post: NextPage<Props> = (props) => {
+    const [comment, setComment] = React.useState('');
+    const [comments, setComments] = React.useState<CommentData[]>(props.data.comments);
+    const handleSubmit = async () => {
+        fetch(`/api/post/${props.data.id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: comment,
+                parentId: null
+            })
+        }).then(async (response) => {
+            const { status, statusText, data } = await getResponse(response);
+            if (status === 201) {
+                setComment("");
+                setComments([...comments, data.data]);
+            } else {
+                toast.error(data.message);
+            }
+        });
+    }
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setComment(e.target.value);
+    }
     const router = useRouter();
     return (
         <div className="bg-blue-100">
             <Navbar />
-            <div className='min-h-screen px-9 pb-10 max-w-4xl mx-auto'>
-                <div 
+            <div className='min-h-screen px-4 pb-10 max-w-4xl mx-auto'>
+                <div
                     className='flex flex-col py-9 w-fit'
                 >
-                    <h1 className='font-bold text-3xl'>{props.data.postOverview.title}</h1>
-                    <div 
+                    <h1 className='font-bold text-3xl'>{props.data.postOverview.post_title}</h1>
+                    <div
                         className='flex items-end gap-1 hover:cursor-pointer'
-                        onClick={() => {router.push(`/${props.data.postOverview.createdby.username}`);}}
+                        onClick={() => { router.push(`/${props.data.postOverview.createdBy.username}`); }}
                     >
                         <div className='text-xl'>
-                            {props.data.postOverview.createdby.profile_emoji}
+                            {props.data.postOverview.createdBy.profile_emoji}
                         </div>
                         <div className='font-semibold text-lg'>
-                            {props.data.postOverview.createdby.username}
+                            {props.data.postOverview.createdBy.username}
                         </div>
                         <div className='text-gray-500'>
-                            {props.data.postOverview.created}
+                            {moment(props.data.postOverview.createdAt).fromNow()}
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <CommentList comments={props.data.comments}/>
+                    {
+                        comments.length == 0
+                            ?
+                            (
+                                <div className='w-full flex flex-col items-center gap-5 bg-white rounded-lg p-6'>
+                                    <div className='text-9xl'>
+                                        📭
+                                    </div>
+                                    <div className='font-semibold text-3xl text-center'>
+                                        This post is empty...
+                                    </div>
+                                    <div className='rounded-xl ring-1 ring-gray-300 w-full px-5 pt-5 flex flex-col'>
+                                        <div>
+                                            <textarea
+                                                className='w-full h-32 p-3'
+                                                placeholder='Write your first comment...'
+                                                onChange={handleChange}
+                                                value={comment}
+                                            />
+                                        </div>
+                                        <Divider />
+                                        <div className='flex gap-3 justify-end my-3'>
+                                            <button
+                                                className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg'
+                                                onClick={handleSubmit}
+                                            >
+                                                Post
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                            :
+                            (
+                                <CommentList comments={comments} />
+                            )
+                    }
                 </div>
-                
+
+                {
+                    comments.length > 0
+                    &&
+                    <div className='w-full flex flex-col items-center gap-5 bg-white rounded-xl mt-5'>
+                        <div className='rounded-xl ring-1 ring-gray-300 w-full px-5 pt-5 flex flex-col'>
+                            <div>
+                                <textarea
+                                    className='w-full h-32 p-3'
+                                    placeholder='Write your comment...'
+                                    onChange={handleChange}
+                                    value={comment}
+                                />
+                            </div>
+                            <Divider />
+                            <div className='flex gap-3 justify-end my-3'>
+                                <button
+                                    className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg'
+                                    onClick={handleSubmit}
+                                >
+                                    Post
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
             </div>
             <Footer />
         </div>
@@ -51,57 +141,59 @@ const Post: NextPage<Props> = (props) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    // fetch user data here
-    // using dummy data for now
-    const { username, postid } = context.query
+    const { username, postid } = context.query;
+    const post: PostData = JSON.parse(JSON.stringify(await prisma.post.findUnique({
+        where: {
+            id: postid,
+        },
+        select: {
+            comments: {
+                where: {
+                    isTopLevel: true
+                },
+                select: {
+                    id: true,
+                    parentId: true,
+                    childComments: {
+                        select: {
+                            id: true,
+                            parentId: true,
+                            content: true,
+                            createdAt: true,
+                            createdBy: true,
+                            post_id: true
+                        }
+                    },
+                    content: true,
+                    createdAt: true,
+                    createdBy: true,
+                    post_id: true,
+                    commentLikes: {
+                        select: {
+                            userId: true,
+                            commentId: true
+                        }
+                    }
+                }
+            },
+            postOverview: {
+                select: {
+                    id: true,
+                    createdBy: true,
+                    postId: true,
+                    createdAt: true,
+                    post_title: true,
+                    post_emoji: true,
+                }
+            },
+            id: true
+        }
+    })));
 
     const response: Props = {
         data: {
-            id: postid!,
-            postOverview: { id: postid!, title: `test post ${postid}`, emoji: "😀", likes: 10, comments: 10, views: 10, edited: "2 month ago", createdby: { username: "reotam27", profile_emoji: "🤣" },created: "4 month ago", },
-            comments: [
-                {
-                    id: "1",
-                    post_id: postid!,
-                    content: "test comment 1",
-                    createdby: { username: username!, profile_emoji: "🤣" },
-                    comments: [
-                        {
-                            id: "1",
-                            post_id: postid!,
-                            content: "test comment 1-2",
-                            createdby: { username: username!, profile_emoji: "🤣" },
-                            parent_comment_id: "1",
-                            created: "4 month ago"
-                        },
-                        {
-                            id: "1",
-                            post_id: postid!,
-                            content: "test comment 1-3",
-                            createdby: { username: username!, profile_emoji: "🤣" },
-                            parent_comment_id: "1",
-                            created: "4 month ago"
-                        }
-                    ],
-                    created: "4 month ago",
-                    parent_comment_id: null,
-                },
-                {
-                    id: "2",
-                    post_id: postid!,
-                    content: "test comment 2",
-                    createdby: { username: username!, profile_emoji: "🤣" },
-                    comments: [],
-                    created: "4 month ago",
-                    parent_comment_id: null,
-                }
-            ]
-        },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {},
-        request: {},
+            ...post,
+        }
     }
 
     return {

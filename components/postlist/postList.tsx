@@ -1,5 +1,3 @@
-import type { NextComponentType } from 'next'
-import { useState } from 'react';
 import { PostOverview } from '../../constants/types';
 import PostItem from './postItem';
 
@@ -13,7 +11,11 @@ const PostList: React.FC<Props> = (props) => {
         <div className='my-4 w-full max-w-7xl'>
             <h2 className='text-3xl font-semibold ml-5'>{props.listTitle}</h2>
             <div className='flex flex-wrap max-w-screen-xl w-full'>
-                {props.posts.map((post) => <PostItem post={post}/>)}
+                {
+                    props.posts
+                    &&
+                    props.posts.map((post) => <PostItem post={post}/>)
+                }
             </div>
         </div>
     )
