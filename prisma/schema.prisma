@@ -56,7 +56,8 @@ model User {
   postOverviews PostOverview[]
   followers Follows[] @relation("follower")
   following Follows[] @relation("following")
-  commentLikes CommentLike[]
+  commentLikes CommentLike[] @relation("likes")
+  commentLiked CommentLike[] @relation("liked")
 }
 
 model Follows {
@@ -64,6 +65,7 @@ model Follows {
   followerId  String
   following   User @relation("following", fields: [followingId], references: [id])
   followingId String 
+  createdAt   DateTime @default(now())
   id  String  @id @default(auto()) @map("_id") @db.ObjectId
 }
 
@@ -102,8 +104,10 @@ model PostOverview {
 model CommentLike {
   id  String  @id @default(auto()) @map("_id") @db.ObjectId
   userId String
-  createdBy User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdBy User @relation(name: "likes" , fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt DateTime @default(now())
   commentId String
   comment Comment @relation(fields: [commentId], references: [id])
+  likedUserId String
+  likedUser User @relation(name: "liked", fields: [likedUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

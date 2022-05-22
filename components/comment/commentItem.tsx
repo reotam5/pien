@@ -44,14 +44,16 @@ const CommentItem: React.FC<Props> = (props) => {
             }
         });
     }
-    const [likeComments, setLikeComments] = React.useState<CommentLike[]>(props.comment.commentLikes ?? []);
+    const [commentLikes, setCommentLikes] = React.useState<number>(props.comment.commentLikes);
+    const [isLiked, setIsLiked] = React.useState<boolean>(props.comment.isLiked);
     const handleLike = async (commentId: string | string[]) => {
         fetch(`/api/commentLike/${commentId}`, {
             method: 'POST',
         }).then(async (response) => {
             const { status, statusText, data } = await getResponse(response);
             if (data.status === 'ok') {
-                setLikeComments([...likeComments, data.data]);
+                setIsLiked(true);
+                setCommentLikes(commentLikes + 1);
             } else {
                 toast.error(data.message);
             }
@@ -67,7 +69,8 @@ const CommentItem: React.FC<Props> = (props) => {
         }).then(async (response) => {
             const { status, statusText, data } = await getResponse(response);
             if (data.status === 'ok') {
-                setLikeComments(likeComments.filter((like) => (like.userId !== session?.user?.id)));
+                setIsLiked(false);
+                setCommentLikes(commentLikes - 1);
             } else {
                 toast.error(data.message);
             }
@@ -96,9 +99,9 @@ const CommentItem: React.FC<Props> = (props) => {
                     </div>
                 </div>
                 <div>
-                    {likeComments.length}
+                    {commentLikes}
                     {
-                        (likeComments.find(like => like.userId === session?.user.id) !== undefined)
+                        (isLiked)
                             ?
                             <IconButton
                                 onClick={() => { handleUnlike(props.comment.id) }}

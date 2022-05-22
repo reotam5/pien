@@ -5,11 +5,11 @@ import { getResponse } from '../../utils/responseUtil';
 
 interface Props {
     username: string | string[] | undefined;
+    status: boolean | undefined;
 }
 
 const FollowButton: React.FC<Props> = (props) => {
-
-    const [following, setFollowing] = useState<boolean | null>(null);
+    const [following, setFollowing] = useState<boolean | undefined>(props.status);
     const handleFollow = () => {
         fetch(`/api/follow/${props.username}`, {
             method: 'POST',
@@ -38,18 +38,6 @@ const FollowButton: React.FC<Props> = (props) => {
             toast.error(error.message);
         });
     }
-    useEffect(() => {
-        fetch(`/api/follow/${props.username}`).then(async (response) => {
-            const { status, statusText, data } = await getResponse(response);
-            if (data.status === 'ok') {
-                setFollowing(data.data.following ?? false);
-            } else {
-                toast.error(data.message);
-            }
-        }).catch((error) => {
-            toast.error(error.message);
-        });
-    }, []);
 
     return (
         <>

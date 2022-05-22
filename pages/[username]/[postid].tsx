@@ -10,8 +10,8 @@ import Navbar from '../../components/navbar'
 import { CommentData, PostData } from '../../constants/types';
 import { getResponse } from '../../utils/responseUtil';
 import moment from 'moment';
-
-const prisma = new PrismaClient();
+import { getPost } from '../../prisma/services/post';
+import { getSession } from 'next-auth/react';
 
 interface Props {
     data: PostData;
@@ -142,54 +142,8 @@ const Post: NextPage<Props> = (props) => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { username, postid } = context.query;
-    const post: PostData = JSON.parse(JSON.stringify(await prisma.post.findUnique({
-        where: {
-            id: postid,
-        },
-        select: {
-            comments: {
-                where: {
-                    isTopLevel: true
-                },
-                select: {
-                    id: true,
-                    parentId: true,
-                    childComments: {
-                        select: {
-                            id: true,
-                            parentId: true,
-                            content: true,
-                            createdAt: true,
-                            createdBy: true,
-                            post_id: true
-                        }
-                    },
-                    content: true,
-                    createdAt: true,
-                    createdBy: true,
-                    post_id: true,
-                    commentLikes: {
-                        select: {
-                            userId: true,
-                            commentId: true
-                        }
-                    }
-                }
-            },
-            postOverview: {
-                select: {
-                    id: true,
-                    createdBy: true,
-                    postId: true,
-                    createdAt: true,
-                    post_title: true,
-                    post_emoji: true,
-                }
-            },
-            id: true
-        }
-    })));
-
+    const session = await getSession(context);
+    const post: PostData = JSON.parse(JSON.stringify(await getPost(postid!, session?.user?.id)));
     const response: Props = {
         data: {
             ...post,

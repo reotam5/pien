@@ -21,6 +21,14 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       const comment = await prisma.comment.findUnique({
         where: {
           id: commentId
+        },
+        select: {
+          id: true,
+          createdBy: {
+            select: {
+              id: true
+            }
+          }
         }
       });
       if (!comment) {
@@ -51,6 +59,11 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
           createdBy: {
             connect: {
               id: session.user.id
+            }
+          },
+          likedUser: {
+            connect: {
+              id: comment.createdBy.id
             }
           }
         }

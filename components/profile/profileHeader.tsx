@@ -13,30 +13,8 @@ interface Props {
 }
 
 const ProfileHeader: React.FC<Props> = (props) => {
-    const [ followers, setFollowers ] = React.useState<number>(0);
-    const [ likes, setLikes ] = React.useState<number>(0);
-    useEffect(() => {
-        fetch(`/api/follow/${props.userData.username}`).then(async (response) => {
-            const { status, statusText, data } = await getResponse(response);
-            if (data.status === 'ok') {
-                setFollowers(data.data.followers ?? 0);
-            } else {
-                toast.error(data.message);
-            }
-        }).catch((error) => {
-            toast.error(error.message);
-        });
-        fetch(`/api/commentLike/${props.userData.username}`).then(async (response) => {
-            const { status, statusText, data } = await getResponse(response);
-            if (data.status === 'ok') {
-                setLikes(data.data.likes ?? 0);
-            } else {
-                toast.error(data.message);
-            }
-        }).catch((error) => {
-            toast.error(error.message);
-        });
-    });
+    const likes = props.userData.commentLiked;
+    const followers = props.userData.followers;
     const { status, data: session } = useSession();
     const [ isEditing, setIsEditing ] = React.useState(false);
     return (
@@ -53,7 +31,7 @@ const ProfileHeader: React.FC<Props> = (props) => {
                         {
                             (session && session.user.username !== props.userData.username) 
                             &&
-                            <FollowButton username={props.userData.username} />
+                            <FollowButton username={props.userData.username} status={props.userData.amIFollowing}/>
                         }
                         {
                             (session && session.user.username === props.userData.username)

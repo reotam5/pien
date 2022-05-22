@@ -9,11 +9,9 @@ import Box from '@mui/material/Box';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import PostCreateModal from '../../components/postModal/postCreateModal'
-import { useSession } from 'next-auth/react'
-import { PrismaClient } from '@prisma/client'
+import { getSession, useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
-
-const prisma = new PrismaClient();
+import { getUserInfoForProfilePage } from '../../prisma/services/profile'
 
 interface Props {
     data: UserData;
@@ -71,20 +69,9 @@ const Index: NextPage<Props> = (props) => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { username } = context.query
-
+    const session = await getSession(context)
     const user: UserData = JSON.parse(JSON.stringify(
-        await prisma.user.findUnique({
-            where: {
-                username: username
-            },
-            include: {
-                postOverviews: {
-                    include: {
-                        createdBy: true,
-                    }
-                },
-            }
-        })
+        await getUserInfoForProfilePage({username: username}, session?.user.id)
     ));
     const response: Props = {
         data: {

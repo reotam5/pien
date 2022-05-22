@@ -17,8 +17,10 @@ export interface UserData {
     username: string | string[] | undefined;
     profile_emoji: string;
     bio: string;
-    github: string | null;
     postOverviews: PostOverview[];
+    commentLiked: number;
+    followers: number;
+    amIFollowing: boolean;
 };
 
 export interface CommentData extends childComment {
@@ -36,7 +38,8 @@ export interface childComment {
         username: string | string[];
         profile_emoji: string;
     };
-    commentLikes: CommentLike[];
+    commentLikes: number;
+    isLiked: boolean;
 }
 
 export interface PostData {
@@ -55,4 +58,6 @@ export interface CommentLike {
     id: string | string[];
     userId: string | string[];
     commentId: string | string[];
+    createdAt: string;
+    likedUserId : string | string[];
 }
