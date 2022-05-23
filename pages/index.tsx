@@ -35,7 +35,7 @@ const Home: NextPage<Props> = (props) => {
       <div className='min-h-screen bg-slate-200'>
         <div className='px-9 bg-blue-100 flex flex-col justify-center'>
           {
-            props.latestPosts.length > 0
+            props.latestPosts && props.latestPosts.length > 0
               ?
               <PostList listTitle='New' posts={props.latestPosts} />
               :
@@ -54,7 +54,7 @@ const Home: NextPage<Props> = (props) => {
             session
             &&
             (
-              props.followingPosts.length > 0
+              props.followingPosts && props.followingPosts.length > 0
                 ?
                 <PostList listTitle='Following' posts={props.followingPosts} />
                 :
