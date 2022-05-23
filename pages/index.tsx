@@ -23,16 +23,19 @@ const Home: NextPage<Props> = (props) => {
       {modalShow && <PostCreateModal toggleModal={handleModalShow} />}
       {
         session &&
-        <Fab
-          color="primary"
-          className="fixed bottom-10 right-5 bg-blue-300 hover:bg-blue-400 z-40"
-          onClick={handleModalShow}
+        <div 
+          className='fixed bottom-10 right-5 z-40 bg-blue-400 rounded-full'
         >
-          <AddIcon />
-        </Fab>
+          <Fab
+            color="primary"
+            onClick={handleModalShow}
+          >
+            <AddIcon />
+          </Fab>
+        </div>
       }
       <Navbar />
-      <div className='min-h-screen bg-slate-200'>
+      <div className='min-h-screen bg-blue-100'>
         <div className='px-9 bg-blue-100 flex flex-col justify-center'>
           {
             props.latestPosts && props.latestPosts.length > 0

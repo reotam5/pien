@@ -29,13 +29,16 @@ const Index: NextPage<Props> = (props) => {
             {modalShow && <PostCreateModal toggleModal={handleModalShow} />}
             {
                 session &&
-                <Fab
-                    color="primary"
-                    className="fixed bottom-10 right-5 bg-blue-300 hover:bg-blue-400 z-40"
-                    onClick={handleModalShow}
+                <div
+                    className='fixed bottom-10 right-5 z-40 bg-blue-400 rounded-full'
                 >
-                    <AddIcon />
-                </Fab>
+                    <Fab
+                        color="primary"
+                        onClick={handleModalShow}
+                    >
+                        <AddIcon />
+                    </Fab>
+                </div>
             }
             <Navbar />
             <div className='min-h-screen bg-blue-100'>
@@ -45,19 +48,19 @@ const Index: NextPage<Props> = (props) => {
                 <div className='px-9 bg-blue-100 flex justify-center'>
                     {
                         props.data.postOverviews.length > 0
-                        ?
-                        <PostList listTitle='Posts' posts={props.data.postOverviews} />
-                        :
-                        (
-                            <div className='flex flex-col justify-center items-center p-10 gap-3'>
-                                <div className='text-7xl'>
-                                    😭
+                            ?
+                            <PostList listTitle='Posts' posts={props.data.postOverviews} />
+                            :
+                            (
+                                <div className='flex flex-col justify-center items-center p-10 gap-3'>
+                                    <div className='text-7xl'>
+                                        😭
+                                    </div>
+                                    <div className='text-xl font-semibold'>
+                                        No post found...
+                                    </div>
                                 </div>
-                                <div className='text-xl font-semibold'>
-                                    No post found...
-                                </div>
-                            </div>
-                        )
+                            )
                     }
                 </div>
             </div>
@@ -70,7 +73,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const { username } = context.query
     const session = await getSession(context)
     const user: UserData = JSON.parse(JSON.stringify(
-        await getUserInfoForProfilePage({username: username}, session?.user.id)
+        await getUserInfoForProfilePage({ username: username }, session?.user.id)
     ));
     const response: Props = {
         data: {
