@@ -19,7 +19,7 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     const myId = session?.user?.id;
     const targetUser = await prisma.user.findUnique({
         where: {
-            username: username
+            username: username as string
         }
     });
     if (!targetUser) {

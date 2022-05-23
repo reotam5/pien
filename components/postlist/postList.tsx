@@ -1,3 +1,4 @@
+import { Key } from 'react';
 import { PostOverview } from '../../types/types';
 import PostItem from './postItem';
 
@@ -14,7 +15,7 @@ const PostList: React.FC<Props> = (props) => {
                 {
                     props.posts
                     &&
-                    props.posts.map((post) => <PostItem post={post}/>)
+                    props.posts.map((post) => <PostItem post={post} key={post.id as Key}/>)
                 }
             </div>
         </div>

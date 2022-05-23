@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 export async function follow(myId: string|string[], targetUserId: string|string[]) {
     const exists = await prisma.follows.findMany({
         where: {
-            followerId: myId,
-            followingId: targetUserId
+            followerId: myId as string,
+            followingId: targetUserId as string
         }
     });
     if (exists.length > 0) {
@@ -16,12 +16,12 @@ export async function follow(myId: string|string[], targetUserId: string|string[
         data: {
             follower: {
                 connect: {
-                    id: myId
+                    id: myId as string
                 }
             },
             following: {
                 connect: {
-                    id: targetUserId
+                    id: targetUserId as string
                 }
             },
         }
@@ -32,8 +32,8 @@ export async function follow(myId: string|string[], targetUserId: string|string[
 export async function unfollow(myId: string|string[], targetUserId: string|string[]) {
     const deleted = await prisma.follows.deleteMany({
         where: {
-            followerId: myId,
-            followingId: targetUserId
+            followerId: myId as string,
+            followingId: targetUserId as string
         }
     });
     return deleted;

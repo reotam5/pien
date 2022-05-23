@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export async function getPost(postId: string | string[], myId: string | undefined) {
     const post = await prisma.post.findUnique({
         where: {
-            id: postId
+            id: postId as string
         },
         select: {
             comments: {
@@ -51,7 +51,7 @@ export async function getPost(postId: string | string[], myId: string | undefine
         }
     });
     await Promise.all(
-        post.comments.map(async (comment: { childComments: any[]; id: any; commentLikes: any; isLiked: boolean; }) => {
+        post!.comments!.map(async (comment: any) => {
             await Promise.all(
                 comment.childComments.map(async (childComment: any) => {
                     const likes = await prisma.commentLike.aggregate({
@@ -99,8 +99,8 @@ export async function createPost(userId: string | undefined, post_title: string 
         data: {
             userId: userId,
             postId: post.id,
-            post_title: post_title,
-            post_emoji: post_emoji,
+            post_title: post_title as string,
+            post_emoji: post_emoji as string,
         },
         include: {
             createdBy: true,

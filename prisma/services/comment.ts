@@ -9,17 +9,17 @@ export async function postComment(myId: string | null, content: string, postId: 
             content,
             post: {
                 connect: {
-                    id: postId
+                    id: postId as string
                 }
             },
             createdBy: {
                 connect: {
-                    id: myId
+                    id: myId as string
                 }
             },
             parentComment: parentId != null ? {
                 connect: {
-                    id: parentId
+                    id: parentId as string
                 }
             } : undefined,
             isTopLevel: !parentId
@@ -40,7 +40,7 @@ export async function likeComment(myId: string | undefined, commentId: string | 
     if (myId === undefined) return null;
     const comment = await prisma.comment.findUnique({
         where: {
-            id: commentId
+            id: commentId as string
         },
         select: {
             id: true,
@@ -65,17 +65,17 @@ export async function likeComment(myId: string | undefined, commentId: string | 
         data: {
             comment: {
                 connect: {
-                    id: comment.id
+                    id: comment.id as string
                 }
             },
             createdBy: {
                 connect: {
-                    id: myId
+                    id: myId as string
                 }
             },
             likedUser: {
                 connect: {
-                    id: comment.createdBy.id
+                    id: comment.createdBy!.id as string
                 }
             }
         }
@@ -88,7 +88,7 @@ export async function unlikeComment(myId: string | undefined, commentId: string 
     if (myId === undefined) return null;
     const comment = await prisma.comment.findUnique({
         where: {
-            id: commentId
+            id: commentId as string
         }
     });
     if (!comment) return null;

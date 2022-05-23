@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function getUserInfoForProfilePage(where: any, myId: string | undefined) {
-    const user = await prisma.user.findUnique({
+    const user:any = await prisma.user.findUnique({
         where: where,
         select: {
             id: true,
@@ -77,7 +77,7 @@ export async function editProfile(userId: string | undefined, newUsername: strin
     });
 
     // if username is unchanged, only update bio and emoji
-    if (targetUser.username === newUsername) {
+    if (targetUser!.username === newUsername) {
         const updatedUser = await prisma.user.update({
             where: {
                 id: userId
@@ -91,7 +91,7 @@ export async function editProfile(userId: string | undefined, newUsername: strin
     } else {
         const user = await prisma.user.findUnique({
             where: {
-                username: newUsername
+                username: newUsername as string
             }
         });
         if (user) return null;
@@ -100,7 +100,7 @@ export async function editProfile(userId: string | undefined, newUsername: strin
                 id: userId
             },
             data: {
-                username: newUsername,
+                username: newUsername as string,
                 bio: newBio,
                 profile_emoji: newProfileEmoji
             }

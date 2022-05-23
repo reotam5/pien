@@ -9,7 +9,6 @@ interface Props {
 
 const PostItem: React.FC<Props> = (props) => {
     const router = useRouter();
-    console.log(props.post);
     const handleOnClick = () => {
         router.push(`/${props.post.createdBy.username}/${props.post.postId}`);
     }

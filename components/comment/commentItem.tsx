@@ -1,7 +1,7 @@
 import { Divider } from '@mui/material';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
+import React, { Key, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { childComment, CommentData, CommentLike } from '../../types/types';
 import { getResponse } from '../../utils/responseUtil';
@@ -136,7 +136,7 @@ const CommentItem: React.FC<Props> = (props) => {
             }
 
             {
-                childComments.map(comment => (<CommentItemChild comment={comment}/>))
+                childComments.map(comment => (<CommentItemChild comment={comment} key={comment.id as Key}/>))
             }
 
             {
