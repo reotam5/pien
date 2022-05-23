@@ -2,9 +2,7 @@ export interface PostOverview {
     id: string | string[];
     post_title: string;
     post_emoji: string;
-    likes: number;
     comments: number;
-    views: number;
     createdAt: string;
     createdBy: {
         username: string;

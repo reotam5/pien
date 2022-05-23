@@ -2,7 +2,8 @@ import { PrismaClient } from '@prisma/client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
 import { UserInfo } from 'os'
-import { UserData } from '../../../constants/types'
+import { createPost } from '../../../prisma/services/post'
+import { UserData } from '../../../types/types'
 
 const prisma = new PrismaClient()
 
@@ -17,23 +18,18 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     if (req.method === "POST") {
         if (session) {
             const { post_emoji, post_title } = req.body;
-            const post = await prisma.post.create({ data: {} });
-            const postOverview = await prisma.postOverview.create({
-                data: {
-                    userId: session.user.id,
-                    postId: post.id,
-                    post_title: post_title,
-                    post_emoji: post_emoji,
-                },
-                include: {
-                    createdBy: true,
-                    post: true,
-                }
-            });
-            res.status(201).json({
-                status: 'ok',
-                data: postOverview
-            })
+            const postOverview = await createPost(session?.user.id, post_title, post_emoji);
+            if (postOverview) {
+                return res.status(200).json({
+                    status: 'ok',
+                    data: postOverview
+                });
+            } else {
+                return res.status(500).json({
+                    status: 'error',
+                    message: 'Error creating post'
+                });
+            }
         } else {
             res.status(401).json({
                 status: 'error',

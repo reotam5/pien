@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
-import { CommentData, UserData } from '../../../constants/types'
+import { postComment } from '../../../prisma/services/comment'
+import { CommentData, UserData } from '../../../types/types'
 
 const prisma = new PrismaClient()
 
@@ -18,36 +19,9 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
         const { parentId, content } = req.body;
 
         //TODO: check if current user is allowed to post comment
-
-        const comment: CommentData = JSON.parse(JSON.stringify(await prisma.comment.create({
-            data: {
-                content,
-                post: {
-                    connect: {
-                        id: postId
-                    }
-                },
-                createdBy: {
-                    connect: {
-                        id: session?.user.id
-                    }
-                },
-                parentComment: parentId ? {
-                    connect: {
-                        id: parentId
-                    }
-                } : undefined,
-                isTopLevel: !parentId
-            },
-            include: {
-                createdBy: true,
-                childComments: {
-                    include: {
-                        createdBy: true
-                    }
-                }
-            }
-        })));
+        const comment: CommentData = JSON.parse(JSON.stringify(
+            await postComment(session?.user?.id!, content, postId, parentId)
+        ));
 
         if (comment) {
             res.status(201).json({
@@ -57,7 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
         } else {
             res.status(500).json({
                 status: 'error',
-                message: 'Something went wrong'
+                message: 'Something went wrong. Check if you are logged in.'
             })
         }
         return res;

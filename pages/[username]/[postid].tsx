@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import CommentList from '../../components/comment/commentList';
 import Footer from '../../components/footer'
 import Navbar from '../../components/navbar'
-import { CommentData, PostData } from '../../constants/types';
+import { CommentData, PostData } from '../../types/types';
 import { getResponse } from '../../utils/responseUtil';
 import moment from 'moment';
 import { getPost } from '../../prisma/services/post';
@@ -143,7 +143,7 @@ const Post: NextPage<Props> = (props) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const { username, postid } = context.query;
     const session = await getSession(context);
-    const post: PostData = JSON.parse(JSON.stringify(await getPost(postid!, session?.user?.id)));
+    const post: PostData = JSON.parse(JSON.stringify(await getPost(postid!, session?.user.id)));
     const response: Props = {
         data: {
             ...post,

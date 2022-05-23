@@ -45,11 +45,19 @@ const UsernameRegisterForm: NextPage<Props> = (props) => {
             })
         }).then(async (response) => {
             const { status, statusText, data } = await getResponse(response);
-            if (status === 201) {
-                router.reload();
+            if (data.status === 'ok') {
+                router.push(`/${data.data.username}`)
+                .then(() => {
+                    router.reload();
+                });
+                setNeedsToRegister(false);
             } else {
                 toast.error(data.message);
+                setNeedsToRegister(false);
             }
+        }).catch(err => {
+            toast.error(err);
+            setNeedsToRegister(false);
         });
     }
     const [profile_emoji, setProfileEmoji] = React.useState(session?.user.profile_emoji || '😶‍🌫️');

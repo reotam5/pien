@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
 import { UserInfo } from 'os'
-import { UserData } from '../../../constants/types'
+import { UserData } from '../../../types/types'
 import { follow, unfollow } from '../../../prisma/services/follow'
 
 const prisma = new PrismaClient()

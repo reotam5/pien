@@ -1,6 +1,6 @@
-import { PostOverview } from '../../constants/types';
+import { PostOverview } from '../../types/types';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { useRouter } from 'next/router';
 import moment from 'moment';
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 
 const PostItem: React.FC<Props> = (props) => {
     const router = useRouter();
+    console.log(props.post);
     const handleOnClick = () => {
         router.push(`/${props.post.createdBy.username}/${props.post.postId}`);
     }
@@ -39,10 +40,7 @@ const PostItem: React.FC<Props> = (props) => {
                         </div>
                     </div>
                     <div className='text-xs'>
-                        <FavoriteBorderIcon color="disabled" fontSize='small'/>{props.post.likes}
-                    </div>
-                    <div className='text-xs'>
-                        <VisibilityIcon color="disabled" fontSize='small'/>{props.post.views}
+                        <ChatBubbleOutlineIcon color="disabled" fontSize='small'/> {props.post.comments || 0}
                     </div>
                 </div>
             </div>

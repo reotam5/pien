@@ -50,5 +50,62 @@ export async function getUserInfoForProfilePage(where: any, myId: string | undef
         }
     });
     user.amIFollowing = amIFollowing.length > 0 ? true : false;
+
+    await Promise.all(
+        user.postOverviews.map(async (post: any) => {
+
+            const comments = await prisma.comment.aggregate({
+                where: {
+                    post_id: post.postId
+                },
+                _count: true
+            });
+            post.comments = comments._count;
+        })
+    );
     return user;
 }
+
+
+
+export async function editProfile(userId: string | undefined, newUsername: string | string[], newBio: string, newProfileEmoji: string) {
+    if (userId === undefined) return null;
+    const targetUser = await prisma.user.findUnique({
+        where: {
+            id: userId
+        },
+    });
+
+    // if username is unchanged, only update bio and emoji
+    if (targetUser.username === newUsername) {
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                bio: newBio,
+                profile_emoji: newProfileEmoji
+            }
+        });
+        return updatedUser;
+    } else {
+        const user = await prisma.user.findUnique({
+            where: {
+                username: newUsername
+            }
+        });
+        if (user) return null;
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: {
+                username: newUsername,
+                bio: newBio,
+                profile_emoji: newProfileEmoji
+            }
+        });
+        return updatedUser;
+    }
+}
+

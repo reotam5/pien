@@ -3,11 +3,12 @@ import moment from 'moment';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { childComment, CommentData, CommentLike } from '../../constants/types';
+import { childComment, CommentData, CommentLike } from '../../types/types';
 import { getResponse } from '../../utils/responseUtil';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { IconButton } from '@mui/material';
 import { useSession } from 'next-auth/react';
+import CommentItemChild from './commentItemChild';
 
 interface Props {
     comment: CommentData;
@@ -44,7 +45,7 @@ const CommentItem: React.FC<Props> = (props) => {
             }
         });
     }
-    const [commentLikes, setCommentLikes] = React.useState<number>(props.comment.commentLikes);
+    const [commentLikes, setCommentLikes] = React.useState<number>(props.comment.commentLikes || 0);
     const [isLiked, setIsLiked] = React.useState<boolean>(props.comment.isLiked);
     const handleLike = async (commentId: string | string[]) => {
         fetch(`/api/commentLike/${commentId}`, {
@@ -135,36 +136,7 @@ const CommentItem: React.FC<Props> = (props) => {
             }
 
             {
-                childComments.map(comment => (
-                    <div className='w-full'>
-                        <div className='flex justify-between'>
-                            <div
-                                className='flex items-end gap-1 hover:cursor-pointer w-fit'
-                                onClick={() => { router.push(`/${comment.createdBy.username}`); }}
-                            >
-                                <div className='text-xl'>
-                                    {comment.createdBy.profile_emoji}
-                                </div>
-                                <div className='font-semibold text-lg'>
-                                    {comment.createdBy.username}
-                                </div>
-                                <div className='text-gray-500'>
-                                    {moment(comment.createdAt).fromNow()}
-                                </div>
-                            </div>
-                            <div>
-                                <FavoriteBorderIcon />
-                            </div>
-                        </div>
-
-                        <div className='flex gap-5 ml-3 w-full pr-10'>
-                            <Divider orientation="vertical" flexItem sx={{ borderRightWidth: 2 }} />
-                            <div className='my-5 break-words w-full'>
-                                {comment.content}
-                            </div>
-                        </div>
-                    </div>
-                ))
+                childComments.map(comment => (<CommentItemChild comment={comment}/>))
             }
 
             {

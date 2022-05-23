@@ -32,7 +32,7 @@ const PostCreateModal: React.FC<Props> = ({toggleModal}: Props) => {
             })
         }).then(async (response) => {
             const { status, statusText, data } = await getResponse(response);
-            if (status === 201) {
+            if (data.status === 'ok') {
                 toggleModal();
                 const username = data.data.createdBy.username;
                 const postId = data.data.postId;
@@ -40,6 +40,8 @@ const PostCreateModal: React.FC<Props> = ({toggleModal}: Props) => {
             } else {
                 toast.error(data.message);
             }
+        }).catch((err) => {
+            toast.error(err);
         });
     }
 

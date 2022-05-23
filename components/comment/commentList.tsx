@@ -1,5 +1,5 @@
 import { Divider } from '@mui/material';
-import { CommentData } from '../../constants/types';
+import { CommentData } from '../../types/types';
 import CommentItem from './commentItem';
 
 

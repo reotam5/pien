@@ -1,4 +1,4 @@
-import { PostOverview } from '../../constants/types';
+import { PostOverview } from '../../types/types';
 import PostItem from './postItem';
 
 interface Props {

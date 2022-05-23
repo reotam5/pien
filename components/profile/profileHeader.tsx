@@ -1,4 +1,4 @@
-import { UserData } from '../../constants/types';
+import { UserData } from '../../types/types';
 import FollowButton from '../buttons/follow';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import { useSession } from 'next-auth/react';
