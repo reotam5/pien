@@ -1,6 +1,5 @@
 import { UserData } from '../../types/types';
 import FollowButton from '../buttons/follow';
-import GitHubIcon from '@mui/icons-material/GitHub';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import UsernameRegisterForm from '../usernameRegisterForm';
@@ -59,9 +58,6 @@ const ProfileHeader: React.FC<Props> = (props) => {
                         <div>
                             <span className='font-bold'>{followers}</span> Followers
                         </div>
-                    </div>
-                    <div>
-                        <GitHubIcon color='primary' />
                     </div>
                 </div>
             </div>
